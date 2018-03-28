@@ -8,7 +8,7 @@
 * Objective-C基础编程
 
 ## notes
-* [读《Effective Objective-C 2.0：编写高质量iOS与OS X代码的52个有效方法》有感](MyLibrary/notes/读《Effective Objective-C 2.0：编写高质量iOS与OS X代码的52个有效方法》有感.md)
+* [读《Effective Objective-C 2.0：编写高质量iOS与OS X代码的52个有效方法》有感](https://github.com/HelloiWorld/MyLibrary/blob/master/notes/读《Effective%20Objective-C%202.0：编写高质量iOS与OS%20X代码的52个有效方法》有感.md)
 
 # 读《Effective Objective-C 2.0：编写高质量iOS与OS X代码的52个有效方法》有感
 
@@ -73,10 +73,10 @@
 ### 8. 理解“对象等同性”
 > * `==`比较的是指针本身
 > * `isEqual:`默认比较的是指针地址
->  1. 先判`self == object`，指针相等则返回`YES`
->  2. 再判`[self class] != [object class]`，若所属类不相同则直接返回`NO`（注：需要考虑继承情况，可使用`isKindOfClass:`）
->  3. 依次分别对每个属性做值判断，一旦有一个不等则返回`NO`
->  4. 最后默认返回`YES`
+>   1. 先判`self == object`，指针相等则返回`YES`
+>   2. 再判`[self class] != [object class]`，若所属类不相同则直接返回`NO`（注：需要考虑继承情况，可使用`isKindOfClass:`）
+>   3. 依次分别对每个属性做值判断，一旦有一个不等则返回`NO`
+>   4. 最后默认返回`YES`
 > * 等同性约定：若`isEqual:`判定两对象相等，则`hash`一定相等；但`hash`相同的两对象未必相等
 
 * 若要检测对象的等同性，请提供`isEqual:`与`hash`方法
