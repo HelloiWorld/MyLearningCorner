@@ -32,23 +32,23 @@
 ### 6. 理解“属性特质”
 * 属性特质
  * 原子性
-     * `atomic`
-     * `nonatomic`
+     * `atomic`(defalut)：原子的，内部有自旋锁，**理论**线程安全(对setter方法加锁)，耗资源
+     * `nonatomic`：非原子属性，非线程安全，常用
  * 读写权限
-     * `readwrite`
-     * `readonly`
+     * `readwrite`(defalut)：可读可写，合成getter和setter方法
+     * `readonly`：只读，只合成getter方法
  * 内存管理语义
-     * `assign`
-     * `strong`
-     * `weak`
-     * `unsafe_unretained`
-     * `copy`
+     * `assign`：设置方法只会执行针对“纯量类型”（如`CGFloat`或`NSInteger`等）的简单赋值操作
+     * `strong`：“拥有关系”。设置新值时，设置方法先保留新值，并释放旧值，再设置新值。
+     * `weak`：“非拥有关系”。设置新值时，设置方法既不保留新值，也不释放旧值。所指对象被销毁时自动将指针置为nil
+     * `unsafe_unretained`：类似于`weak`，但对象被销毁时不会将指针清空，会出现“悬挂指针”
+     * `copy`：类似于`strong`，但不保留新值，而是对其拷贝。常用于修饰“存在可变集合”的不可变集合对象(如`NSString`，`NSArray`，`NSDictionary`，`NSSet`)
  * 方法名
-     * `getter=<name>`
-     * `setter=<name>`
+     * `getter=<name>`：指定“获取方法”的方法名
+     * `setter=<name>`：指定“设置方法”的方法名，不常用
 * 对应关键字
  * `@synthesize`：未手动实现`setter`和`getter`方法时编译器会自动生成，也可用于修改实例变量名（去`_`，不推荐） 
- * `@dynamic`：不自动生成`getter`和`setter`方法
+ * `@dynamic`：禁止自动生成`getter`和`setter`方法
 
 ### 7. 在对象内部尽量访问实例变量
 > * 由于不经过Objective-C的方法派发，直接访问实例变量的的速度更快
@@ -144,8 +144,8 @@ Objective-C没有内置命名空间(namespace)机制。
 	}
 	
 ### 18. 尽量使用不可变对象
-* 不希望外部修改的属性用`readonly`语义声明，若内部可修改设置对应的`readwrite`属性
-* 不宜公开可变的collection属性，封装方法返回collection也最好先转成对应的不可变属性
+* 不希望外部修改的属性用`readonly`语义声明，若内部可修改在“class-continuation类“设置对应的`readwrite`属性
+* 不宜公开可变的collection属性，封装方法返回collection也最好先转成对应的不可变类型
 
 ### 19. 使用清晰而协调的命名方式
 代码洁癖的自我修养
@@ -154,7 +154,7 @@ Objective-C没有内置命名空间(namespace)机制。
 有助于区分于公开方法，一目了然
 
 ### 21. 理解Objectiove-C错误模型
-* 非严重错误无须使用异常，必须使用时参考[第9条]()添加异常宏
+* 非严重错误无须使用异常，必须使用时参考[第9条](#9)添加异常宏
 * 使用`NSError`对象封装错误信息，并返回给调用者
 
 ### 22. 理解NSCopying协议
@@ -236,7 +236,8 @@ Objective-C没有内置命名空间(namespace)机制。
 	#endif
 
 ### 23. 通过委托与数据源协议进行对象间通信
-* 对于经常要使用到的代理(如`UITextFieldDelegate`,`UITextViewDelegate`,`UITableViewDataSource`等)，可交由一个封装的对象专门去实现这些方法，以节省重复代码的书写。
+* 属性使用`weak`修饰，防止保留环
+* 对于经常要使用到的代理和公共数据源(如`UITextFieldDelegate`,`UITextViewDelegate`,`UITableViewDataSource`等)，可交由一个封装的对象专门去实现这些方法，以节省重复代码的书写。
 * **进一步优化**：如需频繁判断`[_delegate respondsToSelector:@selector(xx)]`的结果，可考虑实现含有位段的结构体，将这一判断结果缓存至其中
 
 ### 24. 将类的实现代码分散到便于管理的数个分类之中
@@ -257,9 +258,9 @@ Objective-C没有内置命名空间(namespace)机制。
 比如要同时支持百度地图，高德地图，谷歌地图，这时由于这些第三方库来自不同的类，所以无法继承自同一基类，但它们都具有类似的特征，故可以采用这种协议方法将类似功能的方法提取公开，结合类簇模式思想调取对应第三方库的实现。
 
 ### 29. 理解引用计数
-> * retain: **递增**保留计数
-> * release: **递减**保留计数
-> * autorelease: 待**稍后**(通常是下一次"事件循环",event loop)清理自动释放池(autorelease pool)时，再递减保留计数
+> * `retain`: **递增**保留计数
+> * `release`: **递减**保留计数
+> * `autorelease`: 待**稍后**(通常是下一次"事件循环",event loop)清理自动释放池(autorelease pool)时，再递减保留计数
 
 **保留计数至少为1**。若保留计数为正，则对象继续存活；若保留计数降为0，对象就被销毁。
 
@@ -277,7 +278,7 @@ ARC下`dealloc`方法中应该做的
 * 移除通知： `[[NSNotificationCenter defaultCenter] removeObserver:self];`
 * 释放CoreFoundation对象：`CFRelease(coreFoundationObject)`
 * 不推荐清理文件资源，常见的如数据库、播放器等等，关闭它们更应该明确其生命期进行管理，而不是延迟到**并不一定会执行**的`dealloc`方法
-* 不推荐在此关闭定时器（正确的定时器移除应该由生命周期方法控制，打破循环引用）：`[_timer invalidate]`（保险做法见[第52条]()）
+* 不推荐在此关闭定时器（正确的定时器移除应该由生命周期方法控制，打破循环引用）：`[_timer invalidate]`（保险做法见[第52条](#52)）
 
 ### 32. 编写“异常安全代码”时留意内存管理问题
 * ARC下使用`@try...@catch...@finally`实际上会造成`try`块内所创立的对象内存泄漏，所以往往不这么干
@@ -336,7 +337,7 @@ Weak-Strong-Dance防止block和对象间的循环引用不用多说，偷懒的�
 	#endif
 	#endif
 	
-RAC里的无敌写法：
+RAC里的高级写法：
 
 	#define weakify(...) \\
 	    autoreleasepool {} \\
@@ -375,7 +376,7 @@ RAC里的无敌写法：
 * 通过读取或写入操作使块捕获了实例变量，此时`self`变量也自动被捕获了（同时也会将其保留），如果此时`self`所指代的那个对象同时保留了块，这种情况就导致了“保留环”(retain cycle)。
 
 ### 38. 为常用的块类型创建typedef
-使用简单，作为属性时用`copy`修饰
+使用简单，作为属性时应使用`copy`修饰
 
 ### 39. 用handler块降低代码分散程度
 建议用同一个handler块来处理网络成功与失败情况，比如虽然网络请求成功了，但数据不符合预期，这时方便将错误信息用`NSError`一并返回
