@@ -30,7 +30,7 @@
 修饰符 | 特性 | 作用
 ------------- | ------------- | -------------
 `__strong` | id类型和对象类型**默认**的所有权修饰符 | 被修饰的变量在超出其变量作用域时，即在该变量被废弃时，会释放其被赋予的对象
-`__weak` | 1.不能持有对象实例<br/> 2.在其持有对象被废弃时将自动失效且赋值为nil<br/> 3.使用其变量等价于使用注册到`autoreleasepool`中的对象 | 解决循环引用造成的“内存泄漏”（应当废弃的对象在超出其生存周期后继续存在）问题
+`__weak` | 1.不能持有对象实例<br/> 2.在其持有对象被废弃时将自动失效且赋值为nil | 解决循环引用造成的“内存泄漏”（应当废弃的对象在超出其生存周期后继续存在）问题
 `__unsafe_unretained` | 1.编译器不对其变量进行内存管理<br/> 2.自己生成并持有的对象不能为自己所有<br/> 3.不同于`__weak`之处在于对象被废弃时不会自动清空，造成“悬垂指针” | 1.避免`__weak`遍历weak表带来的性能开销<br/> 2.替代`__weak`在其无法生效的版本(iOS4及OS X Snow Leopard)
 `__autoreleasing` | 1.id的指针或对象的指针没有显式指定时会被附加上此修饰符，如Cocoa框架中`NSError`对象作为方法参数返回值的情况<br/> 2.显式指定时必须是自动变量（包括局部变量、函数以及方法参数） | 等价于在ARC无效时调用对象的`autorelease`方法，即对象被注册到`autoreleasepool`
 > 注：调试注册到`autoreleasePool`上的对象的非公开函数：`_objc_autoreleasePoolPrint()`
@@ -80,11 +80,11 @@
  * 不支持`__weak`修饰符的类，其类声明中附加了`__attribute__ ((objc_arc_weak_reference_unavailable))`这一属性，同时定义了`NS_AUTOMATED_REFCOUNT_WEAK_UNAVAILABLE`。
  * NSObject类中`allowsWeakReference/retainWeakReference`方法返回NO的情况也不能使用`__weak`修饰符。
 
- #### `__autoreleasing`修饰符
- 将对象赋值给附有`__autoreleasing`修饰符的变量等同于ARC无效时调用对象的`autorelease`方法。
+#### `__autoreleasing`修饰符
+将对象赋值给附有`__autoreleasing`修饰符的变量等同于ARC无效时调用对象的`autorelease`方法。
  
- #### 引用计数
- 获取引用计数数值的函数：`uintptr_t _objc_rootRetainCount(id obj)`（对于已释放的对象及多线程下，不可完全相信）
+#### 引用计数
+获取引用计数数值的函数：`uintptr_t _objc_rootRetainCount(id obj)`（对于已释放的对象及多线程下，不可完全相信）
 
 
 
@@ -113,3 +113,4 @@ block语法在执行时，截获（保存）的自动变量的值，是其瞬间
 
 
 # 3. Grand Central Dispatch
+略🤣
