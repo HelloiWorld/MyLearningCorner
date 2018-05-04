@@ -1,4 +1,4 @@
-# 读《iOS开发进阶by唐巧》有感
+# 读唐巧的《iOS开发进阶》有感
 
 ###  写在前面的话
 由于这本书已经发行了很久，很多方法已经过时了，所以虽然记录在此，但不保证其可用性。<br/>
@@ -183,7 +183,7 @@ iOS8后苹果推出了WKWebView，更流畅，占用更少内存。
 对于本地的重要数据，应该加密存储或者将其保存到keychain中，以保证其不被篡改。
 
 ## 源代码安全
-> IDA(https://www.hex-rays.com/products/ida/)是一个收费的反汇编工具，对于Objective-C代码，它常常可以反汇编到可以方便阅读的程度。应对方法是用一些宏简单混淆类名，关键逻辑用纯C实现。
+> IDA([https://www.hex-rays.com/products/ida/](https://www.hex-rays.com/products/ida/))是一个收费的反汇编工具，对于Objective-C代码，它常常可以反汇编到可以方便阅读的程度。应对方法是用一些宏简单混淆类名，关键逻辑用纯C实现。
 
 主推Swift恐怕也是有这里的考虑。
 
@@ -191,7 +191,7 @@ iOS8后苹果推出了WKWebView，更流畅，占用更少内存。
 # 17. 基于CoreText的排版引擎
 > CoreText是用于处理文字和字体的底层技术。用于复杂的文字排版，如调整文字的字间距必须要使用到它，相比UIWebView它占用内存更少，渲染速度更快，原生交互效果也可以更细腻，不过需要自己处理一些复杂的逻辑。
 
-关于复杂排版如图文混排，可以借鉴作者的实现方案打造专属的排版引擎，用时查阅。
+关于复杂排版如图文混排，可以借鉴作者的实现方案打造专属的排版引擎，具体实现待以后用时查阅。
 
 
 # 18. 实战技巧
@@ -216,18 +216,18 @@ iOS8后苹果推出了WKWebView，更流畅，占用更少内存。
 
 ## 开发技巧
 ### 收起键盘
-1. 重载UIViewController中的`touchesBegan:withEvent:`方法，在其中添加`[self.view endEditing:YES];`方法，可在单击**UIViewController的任意地方**收起键盘。
+1. 重载UIViewController中的`touchesBegan:withEvent:`方法，在其中添加`[self.view endEditing:YES];`方法，可在单击UIViewController的任意地方收起键盘。
 2. 直接执行`[[UIApplication sharedApplication] sendAction:@selector(resignFirstResponder) to:nil from:nil forEvent:nil];`
 3. 直接执行`[[[UIApplication sharedApplication] keyWindow] endEditing:YES];`
 
 ### 设置应用内的系统控件语言
-> 右击Info.plist，Open As -> Source Code，增加
-	
-		<key>CFBundleLocalizations</key>
-		<array>
-				<string>zh_CN</string>
-				<string>en</string>
-		</array>
+右击Info.plist，Open As -> Source Code，增加
+
+	<key>CFBundleLocalizations</key>
+	<array>
+			<string>zh_CN</string>
+			<string>en</string>
+	</array>
 
 也可以这么干：<br/>
 Project -> Info -> Localizations增加 Chinese(Simplified)
