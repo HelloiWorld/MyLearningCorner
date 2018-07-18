@@ -38,7 +38,7 @@ Podspec文件托管地址：[https://github.com/CocoaPods/Specs](https://github.
 	platform :ios, '8.0' // 指定iOS平台8.0以上系统
 	
 	pod install //安装依赖库
-	pod update //更新并升级第三方库
+	pod update //更新并升级第三方库至线上最新版
 	pod search [名称] //查找第三方库
 
 ### 关于.gitignore
@@ -54,7 +54,7 @@ Podspec文件托管地址：[https://github.com/CocoaPods/Specs](https://github.
 	pod 'MyCommon', :podspec => 'https://companyname.com/common/myCommon.podspec' 
 	
 ### 不更新podspec
-使用`--no-repo-update`参数禁止更新索引操作：
+使用`--no-repo-update`参数禁止更新索引操作，只会更新到当前本地库最新版： 
 	
 	pod install --no-repo-update
 	pod update --no-repo-update

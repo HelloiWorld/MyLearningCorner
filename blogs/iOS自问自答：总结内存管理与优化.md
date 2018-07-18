@@ -2,8 +2,9 @@
 1. ARC下如何避免内存泄露？如何检测？
 2. 你是如何做内存优化的？
 3. __block你知道多少？在什么时候使用？
-4. 你是如何做线上Bug定位的？(为嘛有这个问题，前几天出了个内存泄露+野指针的bug，so..)
-5. 关于经验和技巧还有什么想说的？
+4. 关于防止APP崩溃你做了哪些努力？
+5. 你是如何做线上Bug定位的？
+6. 关于经验和技巧还有什么想说的？
 
 
 # 1. ARC下如何避免内存泄露？如何检测？ 
@@ -44,7 +45,7 @@
   - 减少`NSDateFormatter`和`NSCalendar`初始化次数（多次使用模仿单例写法`static`+`dispatch_once`，但更好的方案是使用时间戳如`- (NSDate*)dateFromUnixTimestamp:(NSTimeInterval)timestamp {
 return [NSDate dateWithTimeIntervalSince1970:timestamp];
 }`）
-  - 处理内存警告，释放不在使用的资源
+  - 处理内存警告，释放不再使用的资源
 
         - (void)didReceiveMemoryWarning {
           [super didReceiveMemoryWarning];//即使没有显示在window上，也不会自动的将self.view释放。注意跟ios6.0之前的区分
@@ -99,10 +100,50 @@ return [NSDate dateWithTimeIntervalSince1970:timestamp];
     } while (nil == dict);
 
 
-# 4. 你是如何做线上Bug定位的？
-> [ iOS 崩溃日志分析](http://blog.csdn.net/my_programe_life/article/details/50686174)
-> [iOS调试之 crash log分析](http://www.jianshu.com/p/12a2402b29c2)
-> [iOS 应用Crash日志分析整理](http://www.jianshu.com/p/45f45590190c)
+# 4. 关于防止APP崩溃你做了哪些努力？
+APP发生崩溃常出于以下这些情况：
+
+1. 找不到对应的方法`unrecognized selector sent to instance`
+2. 容器越界：数组越界/字典设置空对象等
+3. 访问了僵尸对象`EXC_BAD_ACCESS`
+
+解决方案如下：
+
+1. 利用method-swizzling覆盖消息转发链关键方法，具体做法可以参考这篇文章（[iOS 防止应用崩溃解决方案](https://www.jianshu.com/p/d201ad7c9c66)，这个项目也不错[AvoidCrash](https://github.com/frankzhuo/AvoidCrash)），不再赘述
+2. 同样是用runtime黑魔法替换方法实现，替换潜在崩溃的方法实现，如增加`NSArray+Safe`分类
+
+        + (void)load {
+          static dispatch_once_t onceToken;
+          dispatch_once(&onceToken, ^{
+              [objc_getClass("__NSArrayI") swizzleSelector:@selector(objectAtIndex:) withSwizzledSelector:@selector(safeObjectAtIndex:)];
+          });
+        }
+
+        - (id)safeObjectAtIndex:(NSUInteger)index {
+          // 数组越界也不会崩，但是开发的时候并不知道数组越界
+          if (index > (self.count - 1)) { // 数组越界
+              NSLog(@"数组越界了: index = %ld, array = %@", index, self);
+              NSAssert(1, @"数组越界了"); // 只有开发的时候才会造成程序崩了
+              return nil;
+          } else { // 没有越界
+              return [self safeObjectAtIndex:index];
+          }
+        }
+
+3. 在Xcode中启用僵尸调试模式`Zombie Objects`
+> 僵尸对象的工作原理是系统即将回收的对象转化为僵尸对象而不彻底回收，在运行时创建一个`_NSZombie_+原类名`的新类，对象的isa指针会被修改指向这个僵尸类，在消息转发机制中`___forwarding___`总是会先检查接收消息的对象所属的类名，一旦发现前缀为`_NSZombie)`，则会特殊处理。
+
+通常发生`EXC_BAD_ACCESS`，需要检查是否有在dealloc中移除通知及KVO（iOS 9以下系统需要手动移除），检查属性关键字是否设置正确，此外还有delegate方法是否判断了事件的响应者等。
+
+
+虽然有这些解决办法，但是问题依然存在，必然会导致其他问题，crash本来就是帮助开发者找到问题并及时修复，过分的追求减少崩溃率除了保持KPI并不能带来体验上的提升，开发更多的还是要完善容错处理，写出更健壮的代码。
+
+
+
+# 5. 你是如何做线上Bug定位的？
+> [ iOS 崩溃日志分析](http://blog.csdn.net/my_programe_life/article/details/50686174)</p>
+> [iOS调试之 crash log分析](http://www.jianshu.com/p/12a2402b29c2)</p>
+> [iOS 应用Crash日志分析整理](http://www.jianshu.com/p/45f45590190c)</p>
 
 - ###### 通过第三方Fabric、Bugly、友盟等SDK上传     
   **缺点**：因为内存占用过大被看门狗杀掉的无法定位出错点，诸如一些野指针问题也没有发现
@@ -126,5 +167,5 @@ return [NSDate dateWithTimeIntervalSince1970:timestamp];
  * 先执行`export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`，防止出现`Error:"DEVELOPER_DIR" is not defined at ./symbolicatecrash line 60.`
  * `cd`到同一文件夹下，执行`./symbolicatecrash ./*.crash ./*.app.dSYM > symbol.crash`
 
-# 5. 关于经验和技巧还有什么想说的？
-都放在github上了 [MyLibrary](https://github.com/HelloiWorld/MyLibrary)，持续更新ing
+# 6. 关于经验和技巧还有什么想说的？
+都放在github上了 [MyLearningCorner](https://github.com/HelloiWorld/MyLearningCorner)，持续更新ing
