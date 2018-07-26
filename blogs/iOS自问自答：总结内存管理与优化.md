@@ -9,16 +9,17 @@
 
 # 1. ARC下如何避免内存泄露？如何检测？ 
 * #### 避免：
-  - 注意使用block时是否造成循环引用，使用` __weak` 配合 `__strong`关键字打破闭环
-    > **不是所有的block都要避免循环引用**。所谓“循环引用”，指的是双向的强引用（即self强引用block，block也强引用self），单向的强引用则不用担心，系统的某些block api（如`UIView`的block版本写动画）或者第三方库如[MJRefresh](https://github.com/CoderMJLee/MJRefresh)，[SDWebImage](https://github.com/rs/SDWebImage)等未形成闭环均不用考虑循环引用问题。
+  - 注意使用block时是否造成循环引用，使用` __weak` 配合 `__strong`关键字打破闭环  
+
+      > **不是所有的block都要避免循环引用**。所谓“循环引用”，指的是双向的强引用（即self强引用block，block也强引用self），单向的强引用则不用担心，系统的某些block api（如`UIView`的block版本写动画）或者第三方库如[MJRefresh](https://github.com/CoderMJLee/MJRefresh)，[SDWebImage](https://github.com/rs/SDWebImage)等未形成闭环均不用考虑循环引用问题。
   - delegate使用`weak`声明比`assign`好，因为使用`weak`其`delegate`成员变量会在持有者销毁时**自动被赋为nil**（[对象回收时Weak指针自动被置为nil的实现原理](http://www.jianshu.com/p/13c4fb1cedea)，典型应用：一句话移除所有通知 `[[NSNotificationCenter defaultCenter] removeObserver:self];`），此时向空对象发消息`objc_msgSend(obj, @selector(methodName:)`判断`obj`为 nil 则`selector`也为 nil 从而直接返回 0(nil) 而不会引起crash
   - 注意`CoreFoundation`对象的使用，使用完成后记得主动调用相应的`CFRelease()`方法
   - 例如`NSTimer`加入到Runloop中，界面消失时记得将定时器销毁，建议使用`NSTimer`的分类(如YYKit的[NSTimer+YYAdd](https://github.com/ibireme/YYKit/tree/master/YYKit/Base/Foundation))，并在`dealloc`中调用`[timer invalidate]`停止定时器
 
 * #### 检测：
-> 检测代码中是否存在循环引用问题，可使用 Facebook 开源的一个检测工具[FBRetainCycleDetector](https://github.com/facebook/FBRetainCycleDetector)，这里有两篇很棒的文章翻译并介绍了它的相关用法：
-[[[译文]在iOS上自动检测内存泄露](http://ifujun.com/yi-wen-zai-iosshang-zi-dong-jian-ce-nei-cun-xie-lu/)
-[FBMemoryProfiler 基础教程](http://ifujun.com/yi-wen-zai-iosshang-zi-dong-jian-ce-nei-cun-xie-lu/)](http://ifujun.com/fbmemoryprofiler-shi-yong-ji-chu-jiao-cheng/)
+> 检测代码中是否存在循环引用问题，可使用 Facebook 开源的一个检测工具[FBRetainCycleDetector](https://github.com/facebook/FBRetainCycleDetector)，这里有两篇很棒的文章翻译并介绍了它的相关用法：  
+[[译文]在iOS上自动检测内存泄露](http://ifujun.com/yi-wen-zai-iosshang-zi-dong-jian-ce-nei-cun-xie-lu/)  
+[FBMemoryProfiler 基础教程](http://ifujun.com/fbmemoryprofiler-shi-yong-ji-chu-jiao-cheng/)
 
   - 使用Xcode -> Product -> **Analyze** 分析memory警告，可以发现局部变量忘记release的情况（或者申请了内存却未使用）
   - 在Xcode -> Debug area中点击`Debug Memory Graph`或`Debug View Hierarchy`按钮，在Debug navigator区查看紫色感叹号情况，缺点是每个屏幕都要点击一下
@@ -131,7 +132,7 @@ APP发生崩溃常出于以下这些情况：
         }
 
 3. 在Xcode中启用僵尸调试模式`Zombie Objects`
-> 僵尸对象的工作原理是系统即将回收的对象转化为僵尸对象而不彻底回收，在运行时创建一个`_NSZombie_+原类名`的新类，对象的isa指针会被修改指向这个僵尸类，在消息转发机制中`___forwarding___`总是会先检查接收消息的对象所属的类名，一旦发现前缀为`_NSZombie)`，则会特殊处理。
+> 僵尸对象的工作原理是系统即将回收的对象转化为僵尸对象而不彻底回收，在运行时创建一个`_NSZombie_+原类名`的新类，对象的isa指针会被修改指向这个僵尸类，在消息转发机制中`___forwarding___`总是会先检查接收消息的对象所属的类名，一旦发现前缀为`_NSZombie_`，则会特殊处理。
 
 通常发生`EXC_BAD_ACCESS`，需要检查是否有在dealloc中移除通知及KVO（iOS 9以下系统需要手动移除），检查属性关键字是否设置正确，此外还有delegate方法是否判断了事件的响应者等。
 
@@ -141,9 +142,9 @@ APP发生崩溃常出于以下这些情况：
 
 
 # 5. 你是如何做线上Bug定位的？
-> [ iOS 崩溃日志分析](http://blog.csdn.net/my_programe_life/article/details/50686174)</p>
-> [iOS调试之 crash log分析](http://www.jianshu.com/p/12a2402b29c2)</p>
-> [iOS 应用Crash日志分析整理](http://www.jianshu.com/p/45f45590190c)</p>
+> [ iOS 崩溃日志分析](http://blog.csdn.net/my_programe_life/article/details/50686174)  
+> [iOS调试之 crash log分析](http://www.jianshu.com/p/12a2402b29c2)  
+> [iOS 应用Crash日志分析整理](http://www.jianshu.com/p/45f45590190c)  
 
 - ###### 通过第三方Fabric、Bugly、友盟等SDK上传     
   **缺点**：因为内存占用过大被看门狗杀掉的无法定位出错点，诸如一些野指针问题也没有发现
