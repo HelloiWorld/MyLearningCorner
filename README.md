@@ -13,8 +13,9 @@
 * [When-iOS-loves-JS](https://github.com/HelloiWorld/MyLearningCorner/blob/master/blogs/When-iOS-loves-JS.md)
 
 ## memos
-* [gitMemo](https://github.com/HelloiWorld/MyLearningCorner/blob/master/memos/gitMemo.md)
-* [httpMemo](https://github.com/HelloiWorld/MyLearningCorner/blob/master/memos/httpMemo.md)
+* [git](https://github.com/HelloiWorld/MyLearningCorner/blob/master/memos/git.md)
+* [http](https://github.com/HelloiWorld/MyLearningCorner/blob/master/memos/http.md)
+* [interview](https://github.com/HelloiWorld/MyLearningCorner/blob/master/memos/interview.md)
 
 ## notes
 * [读《Effective Objective-C 2.0：编写高质量iOS与OS X代码的52个有效方法》有感](https://github.com/HelloiWorld/MyLearningCorner/blob/master/notes/读《Effective%20Objective-C%202.0：编写高质量iOS与OS%20X代码的52个有效方法》有感.md)
