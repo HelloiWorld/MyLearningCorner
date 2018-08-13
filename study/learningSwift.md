@@ -98,16 +98,19 @@ OC中`nil`表示的是指针，用于对象；Swift中`nil`表示没有值，如
 ## 8. Swift中写法上的一些改变
 #### 单例写法
 ```
-//单例
-class var sharedInstance: SingletonManager {
-    struct Static {
-        static var onceToken: dispatch_once_t = 0
-        static var instance: SingletonManager? = nil
-    }
-    dispatch_once(&Static.onceToken) {
-        Static.instance = SingletonManager()
-    }    
-    return Static.instance!   
+class Singleton {
+  static let sharedInstance = Singleton()
+}
+```
+或者
+
+```
+class Singleton {
+  static let sharedInstance: Singleton = {
+      let instance = Singleton()
+      // setup code
+      return instance
+  }()
 }
 ```
 
