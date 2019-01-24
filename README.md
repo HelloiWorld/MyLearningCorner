@@ -28,3 +28,4 @@
 
 ## study
 * [learningSwift](https://github.com/HelloiWorld/MyLearningCorner/blob/master/study/learningSwift.md)
+* [issues&solutions](https://github.com/HelloiWorld/MyLearningCorner/blob/master/study/issues&solutions.md)
