@@ -50,3 +50,14 @@ oc里所有的对象都是用指针表示的，打印出来的是对象的指针
 
 
 ## 4. runloop与线程的关系
+1. 主线程的run loop是自动创建并默认启动的。main.m中`UIApplicationMain()`函数会为main thread设置一个NSRunLoop对象，以保证App在休眠时接收到用户触摸事件也能响应。
+2. 对于子线程或其他线程，run loop默认不启动，在第一次调用时才会去创建，并在线程结束时销毁。
+3. 可以通过`[NSRunLoop currentRunLoop]`获取当前线程的run loop
+
+## 7. UIView和CALayer之间的关系
+1. UIView可以响应事件，CALayer不可以。其根源是UIView是继承自UIResponder（UIResponder中定义了处理各种事件和事件传递的接口）的，而CALayer是继承自NSObject的，并没有响应的处理事件的接口。
+2. UIView是CALayer的delegate，其layer属性返回了所在CALayer的实例。YYAsyncLayer就是通过重写`override class var layerClass: AnyClass {
+        return YYAsyncLayer.self
+    }`修改其绘制内容的。
+3. UIView主要处理事件，CALayer负责绘制内容。界面性能优化中有利用此机制，对于不需要响应用户事件的地方直接使用CALayer更加节省性能。
+4. 访问UIView坐标相关的属性其实是访问它所在CALayer的属性，特别的是CALayer中多出`anchorPoint`属性，使用CGPoint结构表示，值域是0~1，是个比例值。更改它即会修改layer的position的位置。
