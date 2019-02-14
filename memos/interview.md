@@ -1,12 +1,13 @@
-# 近期面试问题汇总
+# 近期面试问题汇总及回答
 1. 关于APP内购，怎样处理掉单问题？
 2. 手指点击屏幕，中间发生了哪些过程？响应链传递机制？
 3. 关于lldb调试命令你知道多少？
 4. runloop与线程的关系？
 5. runtime了解多少？
-6. block为什么不能修改外部变量？
-7. UIView和CALayer之间的关系？
-8. 谈谈对于浅拷贝和深拷贝的理解
+6. block为什么不能修改外部变量？__block起到的作用是什么？
+7. 谈谈对于浅拷贝和深拷贝的理解
+8. UIView和CALayer之间的关系？
+9. 细述苹果的消息推送原理和过程
 
 
 ## 1. 关于APP内购，怎样处理掉单问题？
@@ -42,10 +43,10 @@
 
 如果提示`Unable to call function “objc_msgSend” at 0x1e7e08c: no return type information available.`这种错误，其实是要使用强制转义增加返回值类型。
 
-### `p` & `print` & `e` & `call` 命令
-这几个命令其实就是`“expression  -- “`的别名
+#### `p` & `print` & `e` & `call` 命令
+这几个命令其实就是`“expression -- ”`的别名
 
-### `po`命令 
+#### `po`命令 
 oc里所有的对象都是用指针表示的，打印出来的是对象的指针，而不是对象本身，可以采用`-o`来打印对象本身。为了更加方便的使用，LLDB为`“expression -o —“`定了一个别名：`po`
 
 
@@ -54,10 +55,41 @@ oc里所有的对象都是用指针表示的，打印出来的是对象的指针
 2. 对于子线程或其他线程，run loop默认不启动，在第一次调用时才会去创建，并在线程结束时销毁。
 3. 可以通过`[NSRunLoop currentRunLoop]`获取当前线程的run loop
 
-## 7. UIView和CALayer之间的关系
+## 5. runtime了解多少？
+消息传递和消息转发先省略不写。runtime常见应用如下：
+
+* 关联对象(Objective-C Associated Objects)给分类增加属性
+* 方法魔法(Method Swizzling)方法添加和替换和KVO实现
+* 消息转发(热更新)解决Bug(JSPatch)
+* 实现NSCoding的自动归档和自动解档
+* 实现字典和模型的自动转换(MJExtension)
+
+## 6. block为什么不能修改外部变量？__block起到的作用是什么？
+**block中不允许修改外部变量的值**。这里所说的外部变量的值，指的是栈中指针的内存地址。`__block`所起到的作用就是只要观察到该变量被 block 所持有，就将“外部变量”在栈中的内存地址放到了堆中。进而在block内部也可以修改外部变量的值。
+
+## 7. 谈谈对于浅拷贝和深拷贝的理解
+#### OC中的深拷贝，浅拷贝
+* 对于不可变对象，copy都是浅复制，即指针复制。mutableCopy都是内存复制，即深复制 
+* 对于可变对象，copy和mutablecopy一般是内存复制，即深复制 
+* 容器类对象，不论是可变的还是不可变的，copy，mutableCopy返回的对象里所包含的对象的地址和之前都是一样的，即容器内对象都是浅拷贝。
+
+#### swift中深拷贝，浅拷贝
+* class是引用类型的，对于class的拷贝是浅拷贝
+* struct是值类型的，对于struct的拷贝是深拷贝
+
+## 8. UIView和CALayer之间的关系
 1. UIView可以响应事件，CALayer不可以。其根源是UIView是继承自UIResponder（UIResponder中定义了处理各种事件和事件传递的接口）的，而CALayer是继承自NSObject的，并没有响应的处理事件的接口。
 2. UIView是CALayer的delegate，其layer属性返回了所在CALayer的实例。YYAsyncLayer就是通过重写`override class var layerClass: AnyClass {
         return YYAsyncLayer.self
     }`修改其绘制内容的。
 3. UIView主要处理事件，CALayer负责绘制内容。界面性能优化中有利用此机制，对于不需要响应用户事件的地方直接使用CALayer更加节省性能。
 4. 访问UIView坐标相关的属性其实是访问它所在CALayer的属性，特别的是CALayer中多出`anchorPoint`属性，使用CGPoint结构表示，值域是0~1，是个比例值。更改它即会修改layer的position的位置。
+
+
+## 9. 细述苹果的消息推送原理和过程
+1. 为应用程序申请消息推送服务。在App启动时设备向APNs服务器发送注册请求
+2. APNs服务器接受请求，并将deviceToken返给你设备上的应用程序
+3. 客户端应用程序将deviceToken发送给后台服务器程序，后台接收并储存
+4. 后台服务器向APNs服务器发送推送消息
+5. APNs服务器将消息发给deviceToken对应设备上的应用程序
+![](https://upload-images.jianshu.io/upload_images/1340708-47499ef73a24d52f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000)
