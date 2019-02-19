@@ -1,14 +1,14 @@
 # 面试常见问题整理
-1. [关于APP内购，怎样处理掉单问题？](#关于APP内购，怎样处理掉单问题？)
-2. [手指点击屏幕，中间发生了哪些过程？响应链传递机制？](手指点击屏幕，中间发生了哪些过程？响应链传递机制？)
-3. [关于lldb调试命令你知道多少？](#关于lldb调试命令你知道多少？)
-4. [runloop与线程的关系？](#runloop与线程的关系？)
-5. [runtime了解多少？](#runtime了解多少？)
-6. [block为什么不能修改外部变量？__block起到的作用是什么？](#block为什么不能修改外部变量？__block起到的作用是什么？)
-7. [谈谈对于浅拷贝和深拷贝的理解](#谈谈对于浅拷贝和深拷贝的理解)
-8. [UIView和CALayer之间的关系？](#UIView和CALayer之间的关系？)
-9. [细述苹果的消息推送原理和过程](#细述苹果的消息推送原理和过程)
-10. [开发中常见的加密方式原理及应用](#开发中常见的加密方式原理及应用)
+1. [关于APP内购，怎样处理掉单问题？](#1-关于APP内购，怎样处理掉单问题？)
+2. [手指点击屏幕，中间发生了哪些过程？响应链传递机制？](2-手指点击屏幕，中间发生了哪些过程？响应链传递机制？)
+3. [关于lldb调试命令你知道多少？](#3-关于lldb调试命令你知道多少？)
+4. [runloop与线程的关系？](#4-runloop与线程的关系？)
+5. [runtime了解多少？](#5-runtime了解多少？)
+6. [block为什么不能修改外部变量？__block起到的作用是什么？](#6-block为什么不能修改外部变量？__block起到的作用是什么？)
+7. [谈谈对于浅拷贝和深拷贝的理解](#7-谈谈对于浅拷贝和深拷贝的理解)
+8. [UIView和CALayer之间的关系？](#8-uiview和calayer之间的关系？)
+9. [细述苹果的消息推送原理和过程](#9-细述苹果的消息推送原理和过程)
+10. [开发中常见的加密方式原理及应用](#10-开发中常见的加密方式原理及应用)
 
 
 ## 1. 关于APP内购，怎样处理掉单问题？
@@ -22,7 +22,16 @@
 2. 完成第2步操作拿到票据后，由于网络原因与服务器通信失败，尚未验证票据  
 3. 服务器与苹果服务器之间验证失败，需要后台设置重验逻辑  
 
-> `[SKPaymentQueue defaultQueue]`这个队列里面存着所有的已支付、未支付的订单，而且需要手动移除，而APP每次启动的时候都会去判断这个队列里面是否为空，如果不为空的话会调用`<SKPaymentTransactionObserver>`代理的`-(void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions`方法，在验证成功之后移除队列`[[SKPaymentQueue defaultQueue] finishTransaction: transaction];`
+> `[SKPaymentQueue defaultQueue]`这个队列里面存着所有的已支付、未支付的订单，而且需要手动移除，而APP每次启动的时候都会去判断这个队列里面是否为空，如果不为空的话会自动调用`SKPaymentTransactionObserver`代理的
+>
+```
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions;
+```
+方法，在验证成功之后结束对应事务
+> 
+```
+[[SKPaymentQueue defaultQueue] finishTransaction: transaction];
+```
 
 应对处理如下：  
 将支付凭证及相关信息存到本地，然后再去请求服务器验证，这时会出现两种情况：  
@@ -40,12 +49,15 @@
 
 
 ## 3. 关于lldb调试命令你知道多少？
-> `expression`(可简写为`exp`/`expr`)命令是执行一个表达式，并将表达式返回的结果输出，是LLDB调试命令中最重要的命令，也是我们常用的`p`和`po`命令的鼻祖
+> expression（可简写为 exp/expr）命令是执行一个表达式，并将表达式返回的结果输出，是LLDB调试命令中最重要的命令，也是我们常用的 p 和 po 命令的鼻祖
 
 如果提示`Unable to call function “objc_msgSend” at 0x1e7e08c: no return type information available.`这种错误，其实是要使用强制转义增加返回值类型。
 
 #### `p` & `print` & `e` & `call` 命令
-这几个命令其实就是`“expression -- ”`的别名
+这几个命令其实就是`“expression -- ”`的别名，其中：
+
+* p是print的简写，可以用来打印所有的简单类型，如int, float，结构体等。
+* 一般只在不需要显示输出或是方法无返回值时使用`call`
 
 #### `po`命令 
 oc里所有的对象都是用指针表示的，打印出来的是对象的指针，而不是对象本身，可以采用`-o`来打印对象本身。为了更加方便的使用，LLDB为`“expression -o —“`定了一个别名：`po`
