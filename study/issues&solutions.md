@@ -2,7 +2,7 @@
 
 ## 目录
 * [分割线隐藏的另一种方案](#分割线隐藏的另一种方案)
-* [scrollView嵌套tableView的手势冲突解决方案？](#scrollview嵌套tableview的手势冲突解决方案？)
+* [scrollView嵌套tableView的手势冲突解决方案？](#scrollview嵌套tableview的手势冲突解决方案)xw
 
 ## 分割线隐藏的另一种方案
 通常隐藏分割线我们常用的做法是更换导航栏的背景图片及阴影图片，具体做法如下：
