@@ -1,13 +1,13 @@
 # 面试常见问题整理
-1. [关于APP内购，怎样处理掉单问题？](#1-关于APP内购，怎样处理掉单问题)
+1. [关于APP内购，怎样处理掉单问题？](#1-关于APP内购怎样处理掉单问题)
 2. [手指点击屏幕，中间发生了哪些过程？响应链传递机制？](2-手指点击屏幕中间发生了哪些过程响应链传递机制)
 3. [关于lldb调试命令你知道多少？](#3-关于lldb调试命令你知道多少)
 4. [runloop与线程的关系？](#4-runloop与线程的关系)
 5. [runtime了解多少？](#5-runtime了解多少)
-6. [block为什么不能修改外部变量？__block起到的作用是什么？](#6-block为什么不能修改外部变量block起到的作用是什么)
+6. [block为什么不能修改外部变量？__block起到的作用是什么？](#6-block为什么不能修改外部变量__block起到的作用是什么)
 7. [谈谈对于浅拷贝和深拷贝的理解](#7-谈谈对于浅拷贝和深拷贝的理解)
 8. [UIView和CALayer之间的关系？](#8-uiview和calayer之间的关系)
-9. [细述苹果的消息推送原理和过程](#9-细述苹果的消息推送原理和过程)xw
+9. [细述苹果的消息推送原理和过程](#9-细述苹果的消息推送原理和过程)
 10. [开发中常见的加密方式原理及应用](#10-开发中常见的加密方式原理及应用)
 
 
@@ -69,8 +69,25 @@ oc里所有的对象都是用指针表示的，打印出来的是对象的指针
 3. 可以通过`[NSRunLoop currentRunLoop]`获取当前线程的run loop
 
 ## 5. runtime了解多少？
-消息传递和消息转发先省略不写。runtime常见应用如下：
+> 参考资料：[iOS Runtime详解](https://www.jianshu.com/p/6ebda3cd8052)
 
+#### 消息传递
+1. 系统首先找到消息的接收对象，然后通过对象的`isa`指针找到它的类（metaclass元类）
+2. 在它的类中查找`method_list`，是否有`selector`方法（优化tips：`objc_class`结构体中`cache`用来缓存被调用过的函数，其中以`method_name`为key，`method_imp`作为value，提高函数查询的效率）
+3. 没有则查找父类的`method_list`
+4. 找到对应的method，执行它的IMP
+5. 转发IMP的`return`值
+
+#### 消息转发
+![](https://upload-images.jianshu.io/upload_images/301129-cc9c0a7ffb147fed.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/847)
+在消息发送过程中，如果直到在最顶层的父类中仍然找不到相应的方法时，程序在运行时会挂掉并抛出异常`unrecognized selector sent to XXX`，但在失败前还有3次补救机会：
+
+* 动态方法解析：征询接收者，所属的类，看其是否能动态添加方法，以处理当前这个未知的选择子
+* 备援的接收者：判断消息是否能被其他对象接收
+* 完整的消息转发机制： 运行期系统把与消息有关的全部细节都封装到`NSInvocation`对象中，再给接收者最后一次机会，令其设法解决当前还未处理的这条消息。 
+![消息转发流程简图](https://upload-images.jianshu.io/upload_images/301129-a1159ef51f453da8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000)
+
+#### 常见应用
 * 关联对象(Objective-C Associated Objects)给分类增加属性
 * 方法魔法(Method Swizzling)方法添加和替换和KVO实现
 * 消息转发(热更新)解决Bug(JSPatch)
