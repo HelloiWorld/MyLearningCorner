@@ -64,9 +64,9 @@ oc里所有的对象都是用指针表示的，打印出来的是对象的指针
 
 
 ## 4. runloop与线程的关系
-1. 主线程的run loop是自动创建并默认启动的。main.m中`UIApplicationMain()`函数会为main thread设置一个NSRunLoop对象，以保证App在休眠时接收到用户触摸事件也能响应。
-2. 对于子线程或其他线程，run loop默认不启动，在第一次调用时才会去创建，并在线程结束时销毁。
-3. 可以通过`[NSRunLoop currentRunLoop]`获取当前线程的run loop
+1. runloop与线程是一一对应的，runloop管理线程
+2. 主线程的run loop是自动创建并默认启动的。main.m中`UIApplicationMain()`函数会为main thread设置一个NSRunLoop对象，以保证App在休眠时接收到用户触摸事件也能响应。
+3. 对于子线程或其他线程，run loop默认不启动，在第一次调用时才会去创建，并在线程结束时销毁。
 
 ## 5. runtime了解多少？
 > 参考资料：[iOS Runtime详解](https://www.jianshu.com/p/6ebda3cd8052)
