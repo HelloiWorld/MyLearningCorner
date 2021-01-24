@@ -18,13 +18,12 @@ navigationBar.shadowImage = UIImage()
 
 ```
 func hideSeperateLine() {
-	if #available(iOS 11.0, *) {
-	
-	} else {
-	    let backgroundView = self.navigationBar.subviews.first
-	    let lineView = backgroundView?.subviews.first
-	    lineView?.alpha = 0
-	}
+    if #available(iOS 11.0, *) {
+    } else {
+	let backgroundView = self.navigationBar.subviews.first
+	let lineView = backgroundView?.subviews.first      
+	lineView?.alpha = 0
+  }
 }
 
 override func viewDidLayoutSubviews() {
@@ -65,7 +64,7 @@ private func addPanGestures() {
 }
 ```
 
-监听滑动值的改变即可，这里监听的是滑动速度过快时才隐藏导航栏，瑕疵很大=_=
+监听滑动值的改变即可，这里监听的是滑动速度过快时隐藏导航栏
 
 ```
 // MARK: 检测滚动手势、隐藏/显示导航栏
