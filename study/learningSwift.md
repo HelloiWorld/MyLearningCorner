@@ -2,12 +2,13 @@
 
 ## 1. Swift 4.0 中的 open，public，internal，fileprivate，private
 #### private 
-private访问级别所修饰的属性或者方法只能在当前类里访问。
+`private`访问级别所修饰的属性或者方法只能在当前类里访问。  
+但如果设置`privare(set)`表明属性是外部只读，内部可读可写，相当于readonly
 
 #### fileprivate 
 fileprivate访问级别所修饰的属性或者方法在当前的Swift源文件里可以访问。
 
-#### internal（默认访问级别，internal修饰符可写可不写） 
+#### internal（默认访问级别，internal修饰符可省略） 
 internal访问级别所修饰的属性或方法在源代码所在的整个模块都可以访问。 
 如果是框架或者库代码，则在整个框架内部都可以访问，框架由外部代码所引用时，则不可以访问。 
 如果是App代码，也是在整个App代码，也是在整个App内部可以访问。
@@ -68,16 +69,24 @@ func setEffectiveValue<T: Comparable>(value: inout T, min: T?, max: T?) {
 }
 ```
 
+另外泛型还有一些高级用法，比如实现一个**线程安全**的数组或字典，如...
+
 
 ## 6. Swift中一些符号和运算符的差异和变化
 #### `nil`
-OC中`nil`表示的是指针，用于对象；Swift中`nil`表示没有值，如Int和Bool没有值的时候不再默认是0和false
+OC中`nil`表示的是指针，用于对象；Swift中`nil`表示没有值，如Int和Bool没有值的时候不再默认是0和false  
+
+#### `?`和`!`
+在swift中有解包的概念，常常用到这两个符号，具体不细说，但要注意`!`不要随意使用否则会crash 
 
 #### `switch`
 swift中switch-case支持枚举，相应的也支持基本数据类型，在每个case中不再需要添加`break`标明语句结束，而想要继续执行下一个case需要增加`fallthrough`关键字
 
 #### `guard`
 swift中特有的`guard`语句是对`if xx { return }`写法的补充，通常用法是在语句开始前利用`guard`对所有可选类型校验值是否存在并解包
+
+#### `defer`
+这个关键字很实用，会在方法返回前执行其闭包中的语句，所以针对一些需要成对处理的方法会降低代码的重复率，如loading先显示后移除，按钮按下屏蔽点击方法执行完后再恢复等
 
 #### 枚举
 swift中枚举支持默认值是非Int类型，也可以嵌套，另外还有很多高级用法请查阅相关资料
@@ -90,22 +99,37 @@ enum PlatformName: String {
     case qzone = "QQ空间"
 }
 ```
-或是
+还可以扩展枚举增加方法
 
 ```
 enum PlatformType {
-	 enum wechat: Int {
-	     case session = 1
-	     case timeline = 2
+    enum wechat: Int {
+	 case session = 1
+	 case timeline = 2
+	 
+	 func description() -> String {
+	     switch self {
+	     case .session:
+	         return "会话"
+	     case .timeline:
+	         return "朋友圈"
+	     }
 	 }
+    }
     enum qq: Int {
-    	  case session = 1
-    	  case qzone = 2
+    	 case session = 1
+    	 case qzone = 2
     }
 }
 ```
 
 #### `==` 与 `===` 
-`==`只比较内容；`===`不仅比较内容还会比较内存地址
+`==`只比较内容；`===`不仅比较内容还会比较内存地址  
 
- 
+可以重写`==`方法比较其中特定值是否相等
+
+```
+public func ==(lhs: Size, rhs: Size) -> Bool {
+    return lhs.rawValue == rhs.rawValue
+}
+```
