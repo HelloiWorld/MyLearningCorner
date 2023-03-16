@@ -8,6 +8,7 @@
 **不同点**：
   - **互斥锁**（mutex）：当上一个线程的任务没有执行完毕的时候（被锁住），那么下一个线程会进入睡眠状态等待任务执行完毕(sleep-waiting)，当上一个线程的任务执行完毕，下一个线程会自动唤醒然后执行任务。
   - **自旋锁**（Spin lock）：当上一个线程的任务没有执行完毕的时候（被锁住），那么下一个线程会一直等待（busy-waiting），当上一个线程的任务执行完毕，下一个线程会立即执行。
+  - 原理是一直do while忙等
   - 由于自旋锁不会引起调用者睡眠，所以自旋锁的效率远高于互斥锁
   - 自旋锁会一直占用CPU，也可能会造成死锁
 > [自旋锁有bug！](https://lists.swift.org/pipermail/swift-dev/Week-of-Mon-20151214/000372.html)  ibireme大神的文章[《不再安全的 OSSpinLock》](http://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/)
