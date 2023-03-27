@@ -84,6 +84,19 @@
         arr[left] = [NSNumber numberWithInt:tempValue];
         return left;
     }
+    
+Swift filter函数简单实现
+
+    func quickSort<T: Comparable>(_ data: [T]) -> [T] {
+        guard data.count > 1 else {
+            return data
+        }
+        let pivot = data[data.count/2]
+        let less = data.filter { $0 < pivot }
+        let equal = data.filter { $0 == pivot }
+        let greater = data.filter { $0 > pivot }
+        return quickSort(less) + equal + quickSort(greater)
+    }
 
 # 插入排序
 ### 直接插入排序
@@ -120,7 +133,7 @@
             int left = 0; 
             int right = i - 1;
             while (left <= right) {
-                int middle = (left + right)/2;
+                int middle = (left + (right - left))/2;
                 if(temp < [arr[middle] intValue]){   
                     right = middle - 1;    
                 }else{     
