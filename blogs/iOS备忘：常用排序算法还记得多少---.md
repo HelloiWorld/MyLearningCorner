@@ -55,9 +55,10 @@
 5. 重复第3、4步，直到left=right； 
   - 没找到符合条件的值，即3中A[right]不小于key，4中A[left]不大于key的时候改变right、left的值，使得right=right-1，left=left+1，直至找到为止。
   - 找到符合条件的值，进行交换的时候left、right指针位置不变。
-  - 另外，left==right这一过程一定正好是left++或right--完成的时候，此时令循环结束
-
+  - 另外，left==right这一过程一定正好是left++或right--完成的时候，此时令循环结束 
     
+OC通用版本
+
     - (void)quickSort:(NSMutableArray *)arr leftIndex:(int)left rightIndex:(int)right {
         if (left < right) {
             int temp = [self getMiddleIndex:arr leftIndex:left rightIndex:right];
