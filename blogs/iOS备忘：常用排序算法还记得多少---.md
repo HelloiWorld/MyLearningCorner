@@ -65,6 +65,7 @@
             [self quickSort:arr leftIndex:temp + 1 rightIndex:right];
         }
     }
+    
     - (int)getMiddleIndex:(NSMutableArray *)arr leftIndex:(int)left rightIndex:(int)right {
         int tempValue = [arr[left] integerValue];
         while (left < right) {
@@ -84,7 +85,8 @@
         arr[left] = [NSNumber numberWithInt:tempValue];
         return left;
     }
-    
+
+
 Swift filter函数简单实现
 
     func quickSort<T: Comparable>(_ data: [T]) -> [T] {
